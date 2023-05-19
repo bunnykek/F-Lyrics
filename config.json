@@ -1,0 +1,13 @@
+{
+    "synced_lyrics": true,
+    "plain_lyrics": true,
+    "lyric_file_path": "downloads/{artist} - {album} [{year}]/{trackNo}. {title}",
+    "applemusic": {
+        "auth_bearer": "Bearer ey",
+        "media-user-token": "must_required"
+    },
+    "spotify": {
+        "sp_dc": "must_required_get_from_cookies",
+        "auth_bearer": "optional_automatically_gets_fetched"
+    }
+}
