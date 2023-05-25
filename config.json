@@ -8,6 +8,6 @@
     },
     "spotify": {
         "sp_dc": "must_required_get_from_cookies",
-        "auth_bearer": "optional_automatically_gets_fetched"
+        "auth_bearer": "optional_automatically_gets_fetched_"
     }
 }

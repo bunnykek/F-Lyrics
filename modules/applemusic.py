@@ -55,18 +55,16 @@ class Lyrics:
         print("Getting lyrics for the whole album...")
         metadata = self.session.get(f"https://api.music.apple.com/v1/catalog/{region}/albums/{albumid}").json()
         metadata = metadata['data'][0]
+        albumArtist = metadata['attributes']['artistName']
 
         lyricsJson = list()
         for track in metadata['relationships']['tracks']['data']:
-            trackJson = self.getTrackLyric(track['id'], region, api)
+            trackJson = self.getTrackLyric(track['id'], region, api, albumArtist)
             lyricsJson.append(trackJson)
         
         return lyricsJson
 
-    def getTrackLyric(self, trackID: str, region: str, api: bool):
-        response = self.session.get(f'https://amp-api.music.apple.com/v1/catalog/{region}/songs/{trackID}/lyrics')
-        result = response.json()
-        soup =  bs4.BeautifulSoup(result['data'][0]['attributes']['ttml'], 'lxml')
+    def getTrackLyric(self, trackID: str, region: str, api: bool, albumArtist: str = None):
         metadata = self.session.get(f"https://api.music.apple.com/v1/catalog/{region}/songs/{trackID}").json()
         metadata = metadata['data'][0]
 
@@ -76,6 +74,16 @@ class Lyrics:
         artist = sanitize(metadata['attributes']['artistName'])
         album = sanitize(metadata['attributes']['albumName'])
         year = metadata['attributes']['releaseDate'][0:4]
+
+        print(f"{trackNo}. {title}...")
+        # print(json.dumps(metadata, indent=2))
+        if not metadata['attributes']['hasLyrics']:
+            print("Lyrics not available.")
+            return
+
+        response = self.session.get(f'https://amp-api.music.apple.com/v1/catalog/{region}/songs/{trackID}/lyrics')
+        result = response.json()
+        soup =  bs4.BeautifulSoup(result['data'][0]['attributes']['ttml'], 'lxml')
 
         plain_lyric = f"Title: {title}\nAlbum: {album}\nArtist: {artist}\n\n"
         synced_lyric = f"[ti:{title}]\n[ar:{artist}]\n[al:{album}]\n\n"
@@ -96,13 +104,13 @@ class Lyrics:
                     minutes = splits[-2].zfill(2)
                 except:
                     pass
-                timeStamp = minutes+":"+millisec
+                timeStamp = minutes+":"+millisec.replace('s','')
                 text = paragraph.text
                 plain_lyric += text+'\n'
                 synced_lyric += f'[{timeStamp}]{text}\n'
         
         if not api:
-            saveLyrics(synced_lyric, plain_lyric, title, artist, album, trackNo, year)
+            saveLyrics(synced_lyric, plain_lyric, title, albumArtist if albumArtist else artist, album, trackNo, year)
         
         return {
             'synced': synced_lyric,
