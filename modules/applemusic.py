@@ -119,7 +119,7 @@ class Lyrics:
 
         artist = sanitize(metadata['attributes']['artistName'])
         album = sanitize(metadata['attributes']['albumName'])
-        year = metadata['attributes']['releaseDate'][0:4]
+        year = metadata['attributes'].get('releaseDate')
 
         print(f"{trackNo}. {title}...")
         # print(json.dumps(metadata, indent=2))
@@ -145,14 +145,17 @@ class Lyrics:
         else:
             for paragraph in paragraphs:
                 begin = paragraph.get('begin')
-                timeStamp = convert_time_sec(begin) if 's' in begin else convert_time_format(begin)
+                if begin.count(':')>1:
+                    timeStamp = ':'.join(begin.split(':')[1:])
+                else:
+                    timeStamp = convert_time_sec(begin) if 's' in begin else convert_time_format(begin)
                 text = paragraph.text
                 plain_lyric += text+'\n'
                 synced_lyric += f'[{timeStamp}]{text}\n'
 
         if not api:
             saveLyrics(synced_lyric, plain_lyric, title,
-                       albumArtist if albumArtist else artist, album, trackNo, year)
+                       albumArtist if albumArtist else artist, album, trackNo, year[0:4] if year else 'NaN')
 
         return {
             'synced': synced_lyric,
