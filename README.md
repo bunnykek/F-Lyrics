@@ -44,5 +44,4 @@ Response Json ex:
 ![WindowsTerminal_59swFyULxo](https://github.com/bunnykek/F-Lyrics/assets/67633271/b05c4c33-0f3f-4c11-ae58-46323ba92c9e)
 
 
-- Don't forget to star the project if you like using it.    
 - I will not be responsible for how you use F-Lyrics
