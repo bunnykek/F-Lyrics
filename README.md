@@ -3,7 +3,10 @@ A Modular Lyrics Fetcher
 
 ## Supported services
 - Apple Music
-- Spotify   
+- Spotify
+- Tidal
+- Deezer
+- Jiosaavn
 
 `Other services module can be added or made if required`
 
