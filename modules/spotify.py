@@ -9,43 +9,52 @@ from sanitize_filename import sanitize
 from utility import saveLyrics
 
 NAME = "Spotify"
-REGEX = re.compile("https:\/\/open\.spotify\.com\/(track|album)\/([\d|\w]+)")
+REGEX = re.compile(r"https:\/\/open\.spotify\.com\/(track|album)\/([\d|\w]+)")
 
 with open("config.json") as f:
     config = json.load(f)
     AUTH_BEARER = config['spotify']['auth_bearer']
-    SP_DC = config['spotify']['sp_dc']
 
 HEADERS = {
+    'sec-ch-ua': '"Microsoft Edge";v="123", "Not:A-Brand";v="8", "Chromium";v="123"',
+    'DNT': '1',
+    'accept-language': 'en-GB',
+    'sec-ch-ua-mobile': '?0',
     'app-platform': 'WebPlayer',
     'authorization': AUTH_BEARER,
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0',
+    'accept': 'application/json',
+    'Referer': 'https://open.spotify.com/',
+    'spotify-app-version': '1.2.35.583.g729c23d6',
+    'sec-ch-ua-platform': '"Windows"',
 }
 
-def tokencheckupdate():
-    print("Checking the token...")
-    response = requests.get("https://api.spotify.com/v1/albums?ids=4UlGauD7ROb3YbVOFMgW5u&market=from_token", headers=HEADERS)
-    if response.status_code != 200:
-        print("Token expired. Refreshing...")
-        cookies = {
-        'sp_dc': SP_DC,
-        }
+# def tokencheckupdate():
+#     print("Checking the token...")
+#     response = requests.get("https://api.spotify.com/v1/albums?ids=4UlGauD7ROb3YbVOFMgW5u&market=from_token", headers=HEADERS)
+#     if response.status_code != 200:
+#         print("Token expired. Refreshing...")
+#         cookies = {
+#         'sp_dc': SP_DC,
+#         }
 
-        params = {
-            'reason': 'transport',
-            'productType': 'web-player',
-        }
+#         params = {
+#             'reason': 'transport',
+#             'productType': 'web-player',
+#         }
 
-        response = requests.get('https://open.spotify.com/get_access_token', params=params, cookies=cookies)
-        accessToken = response.json()["accessToken"]
-        with open("config.json", 'r+') as f:
-            config = json.load(f)
-            config['spotify']['auth_bearer'] = f"Bearer {accessToken}"
-            HEADERS['authorization'] = config['spotify']['auth_bearer']
-            f.seek(0)
-            # print(json.dumps(config, indent=3))
-            json.dump(config, f, indent=4)
-    else:
-        print("Token is alive.")
+#         response = requests.get('https://open.spotify.com/get_access_token', params=params, cookies=cookies)
+#         print(response.text)
+#         accessToken = response.json()["accessToken"]
+#         with open("config.json", 'r+') as f:
+#             config = json.load(f)
+#             config['spotify']['auth_bearer'] = f"Bearer {accessToken}"
+#             HEADERS['authorization'] = config['spotify']['auth_bearer']
+#             f.seek(0)
+#             # print(json.dumps(config, indent=3))
+#             json.dump(config, f, indent=4)
+#     else:
+#         print("Token is alive.")
 
 
 def convert_milliseconds(milliseconds):
@@ -69,7 +78,7 @@ class Lyrics:
         self.session.headers.update(HEADERS)
         kind, id_ = REGEX.search(url).groups()
         
-        tokencheckupdate()
+        # tokencheckupdate()
 
         if kind == 'track':
             self.jsonResponse = [self.getTrackLyrics(id_, api)]
