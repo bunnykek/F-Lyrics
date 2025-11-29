@@ -2,6 +2,15 @@ import argparse
 import os
 import importlib
 
+from modules.deezer import Deezer
+from modules.spotify import Spotify
+from modules.tidal import Tidal
+from modules.applemusic import AppleMusic
+from modules.jiosaavn import Jiosaavn
+
+from modules.module import Module
+from utility import Utility
+
 banner = """
  /$$$$$$$$         /$$                           /$$                    
 | $$_____/        | $$                          |__/                    
@@ -18,26 +27,26 @@ banner = """
                      A Modular lyrics fetcher
                                --by @bunnykek"""
 
-MODULES = []
-for module in os.listdir('modules'):
-    modulepath = os.path.join('modules', module)
-    if os.path.isfile(modulepath):
-        mname = module[:-3]
-        globals()[mname] = importlib.import_module(f'modules.{mname}')
-        MODULES.append(globals()[mname])
 
 class Flyrics:
+
     """
     from flyrics import Flyrics\n
     lyric = Flyrics()\n
     lyricsList = lyric.fetch("https://open.spotify.com/album/xxxxxxxxxx")
     """
-    def fetch(self, url):
-        for module in MODULES:
+
+    def __init__(self):
+        self.modules: list[type[Module]] = [
+            Deezer, Spotify, Tidal, AppleMusic, Jiosaavn]
+
+    def fetch(self, url, api=True):
+        for module in self.modules:
             result = module.REGEX.search(url)
             if result:
-                instance =  module.Lyrics(url, api=True)
-                return instance.jsonResponse
+                instance = module(url, Utility.getConfig(), api=api)
+                return instance.getResponse()
+
 
 if __name__ == "__main__":
     print(banner)
@@ -46,11 +55,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
     url = args.URL
 
-    for module in MODULES:
-        result = module.REGEX.search(url)
-        if result:
-            print(f"{module.NAME} URL detected.")
-            print("Fetching the lyrics...")
-            module.Lyrics(url, api=False)
-            print("Done.")
-            break
+    flyricsInstance = Flyrics()
+    flyricsInstance.fetch(url, api=False)

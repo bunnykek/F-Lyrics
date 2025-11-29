@@ -1,23 +1,39 @@
 import json
 import os
+from pathlib import Path
 
-with open("config.json") as f:
-    config = json.load(f)
-
-    SYNCED = config['synced_lyrics']
-    PLAIN = config['plain_lyrics']
-    LYRIC_PATH = config['lyric_file_path']
+_config = None
 
 
-def saveLyrics(synced_lyric, plain_lyric, title, artist, album, trackNo, year):
-    lyric_path = LYRIC_PATH.format(title=title, artist=artist, album=album, trackNo=str(trackNo), year=year)
+def getConfig():
+    global _config
+    if _config is None:
+        with open("config.json") as f:
+            _config = json.load(f)
+    return _config
 
-    if not os.path.exists('/'.join(lyric_path.split('/')[:-1])):
-        os.makedirs('/'.join(lyric_path.split('/')[:-1]))
 
-    if SYNCED and synced_lyric:
-        with open(lyric_path+'.lrc', "w+",encoding='utf-8') as f:
-            f.write(synced_lyric)
-    if PLAIN and plain_lyric:
-        with open(lyric_path+'.txt', 'w+', encoding='utf-8') as f:
-            f.write(plain_lyric)
+class Utility:
+    @staticmethod
+    def getConfig():
+        return getConfig()
+
+    @staticmethod
+    def saveLyrics(synced_lyric, plain_lyric, title, artist, album, trackNo, year):
+        config = getConfig()
+        lyric_path = config['lyric_file_path'].format(
+            title=title, artist=artist, album=album, trackNo=str(trackNo), year=year
+        )
+
+        # Create directory if it doesn't exist
+        Path(lyric_path).parent.mkdir(parents=True, exist_ok=True)
+
+        # Save synced lyrics
+        if config['synced_lyrics'] and synced_lyric:
+            with open(f"{lyric_path}.lrc", "w", encoding='utf-8') as f:
+                f.write(synced_lyric)
+
+        # Save plain lyrics
+        if config['plain_lyrics'] and plain_lyric:
+            with open(f"{lyric_path}.txt", "w", encoding='utf-8') as f:
+                f.write(plain_lyric)
