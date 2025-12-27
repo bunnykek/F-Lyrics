@@ -69,15 +69,20 @@ class Tidal(Module):
         year = metadata['streamStartDate'][0:4]
 
         lyric_response = self.session.get(
-            f'https://listen.tidal.com/v1/tracks/{trackid}/lyrics',
+            f'https://openapi.tidal.com/v2/tracks/{trackid}?include=lyrics',
             params=params,
         ).json()
+        
+        print(json.dumps(lyric_response, indent=4))
 
         plain_lyric = f"Title: {title}\nAlbum: {album}\nArtist: {artist}\n\n"
         synced_lyric = f"[ti:{title}]\n[ar:{artist}]\n[al:{album}]\n\n"
 
-        plain_lyric += lyric_response.get('lyrics')
-        synced_lyric += lyric_response.get('subtitles')
+        try:
+            plain_lyric += lyric_response.get('included')[0]['attributes'].get('text', '')
+            synced_lyric += lyric_response.get('included')[0]['attributes'].get('lrcText', '')
+        except (IndexError, KeyError, TypeError):
+            print(f"No lyrics found for {title} by {artist}")
 
         if not api:
             Utility.saveLyrics(synced_lyric, plain_lyric, title,
