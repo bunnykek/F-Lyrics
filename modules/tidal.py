@@ -73,7 +73,7 @@ class Tidal(Module):
             params=params,
         ).json()
         
-        print(json.dumps(lyric_response, indent=4))
+        # print(json.dumps(lyric_response, indent=4))
 
         plain_lyric = f"Title: {title}\nAlbum: {album}\nArtist: {artist}\n\n"
         synced_lyric = f"[ti:{title}]\n[ar:{artist}]\n[al:{album}]\n\n"
