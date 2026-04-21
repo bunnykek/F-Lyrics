@@ -43,18 +43,18 @@ class AppleMusic(Module):
         }
 
         if trackFlag:
-            self.jsonResponse = [self.getTrackLyrics(trackid, data, api)]
+            self.jsonResponse = [self.getTrackLyrics(trackid, data, config, api)]
 
         elif kind == 'song':
-            self.jsonResponse = [self.getTrackLyrics(albumid, data, api)]
+            self.jsonResponse = [self.getTrackLyrics(albumid, data, config, api)]
 
         else:
-            self.jsonResponse = self.getAlbumLyrics(albumid, data, api)
+            self.jsonResponse = self.getAlbumLyrics(albumid, data, config, api)
 
     def getResponse(self) -> None:
         return self.jsonResponse
 
-    def getAlbumLyrics(self, albumid: str, data: dict, api: bool) -> None:
+    def getAlbumLyrics(self, albumid: str, data: dict, config: dict, api: bool) -> None:
         print("Getting lyrics for the whole album...")
         metadata = self.session.get(
             f"https://api.music.apple.com/v1/catalog/{data["region"]}/albums/{albumid}").json()
@@ -63,12 +63,12 @@ class AppleMusic(Module):
 
         lyricsJson = list()
         for track in metadata['relationships']['tracks']['data']:
-            trackJson = self.getTrackLyrics(track['id'], data, api)
+            trackJson = self.getTrackLyrics(track['id'], data, config, api)
             lyricsJson.append(trackJson)
 
         return lyricsJson
 
-    def getTrackLyrics(self, trackid: str, data: dict, api: bool) -> None:
+    def getTrackLyrics(self, trackid: str, data: dict, config: dict, api: bool) -> None:
         metadata = self.session.get(
             f"https://api.music.apple.com/v1/catalog/{data["region"]}/songs/{trackid}").json()
         metadata = metadata['data'][0]

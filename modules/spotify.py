@@ -35,15 +35,15 @@ class Spotify(Module):
         # tokencheckupdate()
 
         if kind == 'track':
-            self.jsonResponse = [self.getTrackLyrics(id_, dict(), api)]
+            self.jsonResponse = [self.getTrackLyrics(id_, dict(), config, api)]
 
         else:
-            self.jsonResponse = self.getAlbumLyrics(id_, dict(), api)
+            self.jsonResponse = self.getAlbumLyrics(id_, dict(), config, api)
 
     def getResponse(self):
         return self.jsonResponse
 
-    def getAlbumLyrics(self, albumid: str, data: dict, api: bool):
+    def getAlbumLyrics(self, albumid: str, data: dict, config: dict, api: bool):
         response = self.session.get(
             f'https://api.spotify.com/v1/albums?ids={albumid}&market=from_token')
 
@@ -53,12 +53,12 @@ class Spotify(Module):
         lyricsJson = list()
         for track in metadata['tracks']['items']:
             trackid = track['id']
-            trackJson = self.getTrackLyrics(trackid, data, api)
+            trackJson = self.getTrackLyrics(trackid, data, config, api)
             lyricsJson.append(trackJson)
 
         return lyricsJson
 
-    def getTrackLyrics(self, trackid: str, data: dict, api: bool):
+    def getTrackLyrics(self, trackid: str, data: dict, config: dict, api: bool):
         response = self.session.get(
             f'https://api.spotify.com/v1/tracks?ids={trackid}&market=from_token')
         metadata = response.json()['tracks'][0]

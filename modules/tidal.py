@@ -21,15 +21,15 @@ class Tidal(Module):
         kind, id_ = Tidal.REGEX.search(url).groups()
 
         if kind == 'track':
-            self.jsonResponse = [self.getTrackLyrics(id_, dict(), api)]
+            self.jsonResponse = [self.getTrackLyrics(id_, dict(), config, api)]
 
         else:
-            self.jsonResponse = self.getAlbumLyrics(id_, dict(), api)
+            self.jsonResponse = self.getAlbumLyrics(id_, dict(), config, api)
 
     def getResponse(self):
         return self.jsonResponse
 
-    def getAlbumLyrics(self, albumid: str, data: dict, api: bool):
+    def getAlbumLyrics(self, albumid: str, data: dict, config: dict, api: bool):
         params = {
             'albumId': albumid,
             'countryCode': 'US',
@@ -46,12 +46,12 @@ class Tidal(Module):
         lyricsJson = list()
         for track in metadata['rows'][1]['modules'][0]['pagedList']['items']:
             trackid = track['item']['id']
-            trackJson = self.getTrackLyrics(trackid, data, api)
+            trackJson = self.getTrackLyrics(trackid, data, config, api)
             lyricsJson.append(trackJson)
 
         return lyricsJson
 
-    def getTrackLyrics(self, trackid: str, data: dict, api: bool):
+    def getTrackLyrics(self, trackid: str, data: dict, config: dict, api: bool):
         params = {
             'countryCode': 'US',
             'locale': 'en_US',
@@ -78,13 +78,15 @@ class Tidal(Module):
         plain_lyric = f"Title: {title}\nAlbum: {album}\nArtist: {artist}\n\n"
         synced_lyric = f"[ti:{title}]\n[ar:{artist}]\n[al:{album}]\n\n"
 
+        lyrics_exist = len(lyric_response.get('included')[0]['attributes'].get('text', '')) > 0
+
         try:
             plain_lyric += lyric_response.get('included')[0]['attributes'].get('text', '')
             synced_lyric += lyric_response.get('included')[0]['attributes'].get('lrcText', '')
         except (IndexError, KeyError, TypeError):
             print(f"No lyrics found for {title} by {artist}")
 
-        if not api:
+        if not api and (lyrics_exist or config["save_empty_lyrics"]):
             Utility.saveLyrics(synced_lyric, plain_lyric, title,
                                artist, album, trackNo, year)
 

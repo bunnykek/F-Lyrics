@@ -21,10 +21,10 @@ class Deezer(Module):
         kind, id_ = Deezer.REGEX.search(url).groups()
 
         if kind == 'track':
-            self.jsonResponse = [self.getTrackLyrics(id_, dict(), api)]
+            self.jsonResponse = [self.getTrackLyrics(id_, dict(), config, api)]
 
         else:
-            self.jsonResponse = self.getAlbumLyrics(id_, dict(), api)
+            self.jsonResponse = self.getAlbumLyrics(id_, dict(), config, api)
 
     def __updatebearer(self):
         params = {
@@ -40,7 +40,7 @@ class Deezer(Module):
     def getResponse(self):
         return self.jsonResponse
 
-    def getAlbumLyrics(self, albumid, data: dict, api):
+    def getAlbumLyrics(self, albumid, data: dict, config: dict, api):
         response = self.session.get(f'https://api.deezer.com/album/{albumid}')
         metadata = response.json()
         year = metadata['release_date'][0:4]
@@ -52,12 +52,12 @@ class Deezer(Module):
                 "year": year,
                 "trackjson": track
             }
-            trackJson = self.getTrackLyrics(trackid, data, api)
+            trackJson = self.getTrackLyrics(trackid, data, config, api)
             lyricsJson.append(trackJson)
 
         return lyricsJson
 
-    def getTrackLyrics(self, trackid, data: dict, api):
+    def getTrackLyrics(self, trackid, data: dict, config: dict, api):
         if not "trackjson" in data:
             data["trackjson"] = self.session.get(
                 f"https://api.deezer.com/track/{trackid}").json()

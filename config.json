@@ -1,6 +1,7 @@
 {
     "synced_lyrics": true,
     "plain_lyrics": true,
+    "save_empty_lyrics": false,
     "lyric_file_path": "downloads/{artist} - {album} [{year}]/{trackNo}. {title}",
     "applemusic": {
         "auth_bearer": "Bearer ey....",

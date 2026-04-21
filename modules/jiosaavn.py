@@ -17,10 +17,10 @@ class Jiosaavn(Module):
         kind, id_ = Jiosaavn.REGEX.search(url).groups()
 
         if kind == 'song':
-            self.jsonResponse = [self.getTrackLyrics(id_, dict(), api)]
+            self.jsonResponse = [self.getTrackLyrics(id_, dict(), config, api)]
 
         else:
-            self.jsonResponse = self.getAlbumLyrics(id_, dict(), api)
+            self.jsonResponse = self.getAlbumLyrics(id_, dict(), config, api)
 
     def __cleanhtml(self, raw_html):
         cleantext = re.sub(Jiosaavn.CLEANR, '', raw_html)
@@ -29,7 +29,7 @@ class Jiosaavn(Module):
     def getResponse(self):
         return self.jsonResponse
 
-    def getAlbumLyrics(self, albumid: str, data: dict, api: bool):
+    def getAlbumLyrics(self, albumid: str, data: dict, config: dict, api: bool):
         response = self.session.get(
             f'https://www.jiosaavn.com/api.php?__call=webapi.get&token={albumid}&type=album&_format=json')
         metadata = response.json()
@@ -42,12 +42,12 @@ class Jiosaavn(Module):
                 "albumArtist": album_artist,
                 "trackjson": track
             }
-            trackJson = self.getTrackLyrics(trackid, data, api)
+            trackJson = self.getTrackLyrics(trackid, data, config, api)
             lyricsJson.append(trackJson)
 
         return lyricsJson
 
-    def getTrackLyrics(self, trackid: str, data: dict, api: bool):
+    def getTrackLyrics(self, trackid: str, data: dict, config: dict, api: bool):
         trackjson = data.get("trackjson", None)
         if not trackjson:
             trackjson = self.session.get(

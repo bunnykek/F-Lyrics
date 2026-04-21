@@ -7,11 +7,11 @@ class Module(ABC):
         pass
 
     @abstractmethod
-    def getAlbumLyrics(self, albumid: str, data: dict, api: bool) -> None:
+    def getAlbumLyrics(self, albumid: str, data: dict, config: dict, api: bool) -> None:
         pass
 
     @abstractmethod
-    def getTrackLyrics(self, trackid: str, data: dict, api: bool) -> None:
+    def getTrackLyrics(self, trackid: str, data: dict, config: dict, api: bool) -> None:
         pass
 
     @abstractmethod
